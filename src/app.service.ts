@@ -5,29 +5,32 @@ import {
   CurrencyRate,
   Statement,
 } from './monobank/monobank.interfaces';
-import { NotionClientService } from './notion/notion.service';
+import { NotionService } from './notion/notion.service';
+import { asyncSequential } from './utils/async';
 
 @Injectable()
 export class AppService {
   @Inject() private readonly monobankService: MonobankService;
-  @Inject() private readonly notionService: NotionClientService;
+  @Inject() private readonly notionService: NotionService;
 
   async getExchangeRates(): Promise<CurrencyRate[]> {
     return await this.monobankService.getExchangeRates();
   }
 
   async getClientInfo(): Promise<ClientInfo> {
-    const database = await this.getDatabase();
-    console.log(database);
+    const clientInfo = await this.monobankService.getClientInfo();
 
-    return await this.monobankService.getClientInfo();
+    await asyncSequential(clientInfo?.accounts || [], async (account) => {
+      await this.notionService.createDatabase(
+        'pageId',
+        account.maskedPan[0] ?? account.iban,
+      );
+    });
+
+    return clientInfo;
   }
 
   async getPremiumAccountStatements(): Promise<Statement[]> {
     return await this.monobankService.getPremiumAccountStatements();
-  }
-
-  async getDatabase() {
-    return await this.notionService.getDatabase();
   }
 }
