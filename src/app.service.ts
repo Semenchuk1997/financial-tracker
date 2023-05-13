@@ -6,7 +6,6 @@ import {
   Statement,
 } from './monobank/monobank.interfaces';
 import { NotionService } from './notion/notion.service';
-import { asyncSequential } from './utils/async';
 
 @Injectable()
 export class AppService {
@@ -20,12 +19,12 @@ export class AppService {
   async getClientInfo(): Promise<ClientInfo> {
     const clientInfo = await this.monobankService.getClientInfo();
 
-    await asyncSequential(clientInfo?.accounts || [], async (account) => {
-      await this.notionService.createDatabase(
-        'pageId',
-        account.maskedPan[0] ?? account.iban,
-      );
-    });
+    // await asyncSequential(clientInfo?.accounts || [], async (account) => {
+    //   await this.notionService.createDatabase(
+    //     'pageId',
+    //     account.maskedPan[0] ?? account.iban,
+    //   );
+    // });
 
     return clientInfo;
   }

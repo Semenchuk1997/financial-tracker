@@ -1,4 +1,4 @@
-import { Controller, Get, Inject } from '@nestjs/common';
+import { Controller, Get, HttpCode, Inject, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import {
   ClientInfo,
@@ -23,5 +23,18 @@ export class AppController {
   @Get('account/premium')
   async getPremiumAccountStatements(): Promise<Statement[]> {
     return await this.appService.getPremiumAccountStatements();
+  }
+
+  @Get('webhook')
+  @HttpCode(200)
+  async webhook(): Promise<string> {
+    return 'ok';
+  }
+
+  @Post('webhook')
+  @HttpCode(200)
+  async webhookHandler(event: any): Promise<string> {
+    console.log(event);
+    return 'ok';
   }
 }
