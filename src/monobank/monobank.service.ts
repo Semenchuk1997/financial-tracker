@@ -38,6 +38,21 @@ export class MonobankService {
     return await this.request<Statement[]>(url);
   }
 
+  async getPremiumAccountStatements(): Promise<Statement[]> {
+    const startMonth = this.getMonthStartTimestamp();
+    const now = Math.floor(Date.now() / 1000);
+
+    return await this.getStatements('3bOJZpOL2QYvRSaK6ypWrg', startMonth, now);
+  }
+
+  private getMonthStartTimestamp(): number {
+    const now = new Date();
+    const startMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    startMonth.setHours(0, 0, 0, 0);
+
+    return startMonth.getTime() / 1000;
+  }
+
   async request<T>(url: string): Promise<T> {
     this.logger.log(`Requesting ${url}`);
 
